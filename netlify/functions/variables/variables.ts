@@ -8,6 +8,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     throw 'Missing MY_IMPORTANT_VARIABLE'
   }
 
+  console.log('Hola mundo desde los logs');
+
   return {
     statusCode: 200,
     body: JSON.stringify({
