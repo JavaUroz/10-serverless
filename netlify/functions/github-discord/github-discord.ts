@@ -16,9 +16,52 @@ const notify = async(message: string) => {
     return true;
 }
 
+const onStar = (payload: any): string => {
+    const { action, sender, repository } = payload;
+
+    return `User ${ sender.login } ${action} star on ${ repository.full_name }`;    
+  }
+
+const onIssue = (payload: any): string => {
+  const { action, issue } = payload;
+
+  if (action === 'opened') {
+    return `An issue was opened with title: ${issue.title} by user: ${issue.user.login}`;
+  }
+
+  if (action === 'closed') {
+    return `An issue was closed with title: ${issue.title} by user: ${issue.user.login}`;
+  }
+
+  if (action === 'reopened') {
+      return `An issue was reopened with title: ${issue.title} by user: ${issue.user.login}`;
+  }
+
+  return `Anhundled action for the issue event: ${ action }` ;
+}
+
 const handler: Handler = async(event: HandlerEvent, context: HandlerContext) => {
 
-  await notify('Hola mundo desde Netlify Dev');
+  const githubEvent = event.headers['x-github-event'] ?? 'unknown'
+  const payload = JSON.parse(event.body ?? '');
+  let message: string;
+
+  console.log(payload);
+
+  switch(githubEvent){
+      case 'star':
+        message = onStar(payload);
+      break;
+
+      case 'issues':
+        message = onIssue(payload);
+      break;
+
+      default:
+        message = `unknown event: ${githubEvent}`
+    }
+
+  await notify(message);
 
   return {
     statusCode: 200,
@@ -31,4 +74,4 @@ const handler: Handler = async(event: HandlerEvent, context: HandlerContext) => 
   };
 }
 
-export{ notify }
+export{ handler }
